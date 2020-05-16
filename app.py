@@ -1,30 +1,12 @@
 from flask import Flask, jsonify
-from flask.views import MethodView
-
-from webargs import fields, validate
-from webargs.flaskparser import use_args, parser, abort
-
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from resources.sentiment import Sentiment
+from resources.readability import Readability
 
 app = Flask(__name__)
 
-vader_analyser = SentimentIntensityAnalyzer()
-
-class Sentiment(MethodView):
-    text_args = {"text": fields.Str(required=True)}
-
-    def get(self):
-        return "Working, post your text to this resource."
-
-    @use_args(text_args)
-    def post(self, args):
-        text = args['text']
-        sentiment = vader_analyser.polarity_scores(text)
-        return sentiment
-
 app.add_url_rule('/sentiment', view_func=Sentiment.as_view('sentiment'))
+app.add_url_rule('/readability', view_func=Readability.as_view('readability'))
 
-# Return validation errors as JSON
 @app.errorhandler(422)
 @app.errorhandler(400)
 def handle_error(err):
